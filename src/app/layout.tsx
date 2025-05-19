@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Nunito } from "next/font/google"
 import Header from "@/components/header"
 import Link from "next/link"
-import Image from "next/image"
 import { FaTelegram } from "react-icons/fa"
 
 const nunito = Nunito({
@@ -14,7 +13,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Nook App - A savings app with a higher rate",
+  title: "Uptoro",
   description: "Earn up to 8.4% annual percentage yield (APY) by lending your funds, offering one of the most competitive returns in the market",
 }
 
