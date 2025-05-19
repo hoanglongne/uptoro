@@ -13,6 +13,7 @@ const formSchema = z.object({
 export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -23,11 +24,11 @@ export default function SignUp() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
+    setErrorMessage("") // Clear any previous errors
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/waitlist`
-        : '/api/waitlist';
+      // Always use the relative URL path when running in the browser
+      const apiUrl = '/api/waitlist';
 
       console.log("Submitting to API URL:", apiUrl);
 
@@ -42,6 +43,23 @@ export default function SignUp() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', response.status, errorText);
+
+        let errorMsg = 'Failed to join waitlist. Please try again later.';
+
+        try {
+          // Try to parse the error message if it's JSON
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            errorMsg = errorData.error;
+          }
+        } catch (e) {
+          // If parsing fails, use the error text directly if it's short enough
+          if (errorText && errorText.length < 100) {
+            errorMsg = errorText;
+          }
+        }
+
+        setErrorMessage(errorMsg);
         throw new Error(`API error ${response.status}: ${errorText || 'Unknown error'}`);
       }
 
@@ -50,6 +68,9 @@ export default function SignUp() {
       setIsSuccess(true);
     } catch (error) {
       console.error('Error submitting email:', error);
+      if (!errorMessage) {
+        setErrorMessage('Network error. Please check your connection and try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -125,6 +146,12 @@ export default function SignUp() {
                   ) : "Join"}
                 </button>
               </div>
+
+              {errorMessage && (
+                <p className="text-red-500 text-sm mt-3 ml-1 max-w-[442px]">
+                  {errorMessage}
+                </p>
+              )}
             </form>
           </div>
         )}
