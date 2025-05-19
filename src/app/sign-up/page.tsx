@@ -25,7 +25,13 @@ export default function SignUp() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/waitlist', {
+      const apiUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/waitlist`
+        : '/api/waitlist';
+
+      console.log("Submitting to API URL:", apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,12 +39,13 @@ export default function SignUp() {
         body: JSON.stringify({ email: values.email }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to join waitlist');
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`API error ${response.status}: ${errorText || 'Unknown error'}`);
       }
 
+      const data = await response.json();
       console.log('Email added to waitlist:', values.email);
       setIsSuccess(true);
     } catch (error) {
