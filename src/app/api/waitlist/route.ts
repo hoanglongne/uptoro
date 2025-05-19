@@ -165,7 +165,7 @@ export async function POST(request: Request) {
         console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
 
         let errorMessage = 'Failed to add email to waitlist';
-        let statusCode = 500;
+        const statusCode = 500;
 
         if (error instanceof Error) {
             if (error.message.includes('jwt') || error.message.includes('auth')) {
